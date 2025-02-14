@@ -3,7 +3,7 @@ from flask_socketio import SocketIO, emit, disconnect
 from dotenv import load_dotenv
 from huggingface_hub import HfApi
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from concurrent.futures import ThreadPoolExecutor
 from config import USERNAME, PASSWORD, HF_TOKENS
 from api import api as api_blueprint
@@ -12,6 +12,9 @@ import threading
 import logging
 import time
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.memory import MemoryJobStore
+import atexit
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +27,14 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.register_blueprint(api_blueprint)
 socketio = SocketIO(app)
+
+# 创建全局调度器
+scheduler = BackgroundScheduler()
+scheduler.add_jobstore('memory')
+scheduler.start()
+
+# 确保应用退出时正确关闭调度器
+atexit.register(lambda: scheduler.shutdown())
 
 # 缓存管理
 class SpaceCache:
@@ -60,6 +71,34 @@ class SpaceCache:
             return len(self.active_clients) > 0
 
 space_cache = SpaceCache()
+
+# 重启日志管理
+class RestartLog:
+    def __init__(self):
+        self.logs = {}  # repo_id -> 日志条目列表
+        self.max_logs = 30 # 最大日志条目数
+        self.lock = threading.Lock()
+
+    def add_log(self, repo_id, success, message):
+        with self.lock:
+            if repo_id not in self.logs:
+                self.logs[repo_id] = []
+            
+            log_entry = {
+                'timestamp': datetime.now().astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S'),
+                'success': success,
+                'message': message
+            }
+            
+            self.logs[repo_id].insert(0, log_entry)  # 添加到开头
+            if len(self.logs[repo_id]) > self.max_logs:
+                self.logs[repo_id].pop()  # 移除最旧的日志
+
+    def get_logs(self, repo_id):
+        with self.lock:
+            return self.logs.get(repo_id, [])
+
+restart_log = RestartLog()
 
 # WebSocket 事件处理
 @socketio.on('connect')
@@ -217,11 +256,17 @@ def get_space_status(repo_id):
 
 def restart_space(repo_id, token):
     try:
+        app.logger.info(f"Executing restart for space: {repo_id}")
         hf_api = HfApi(token=token)
         hf_api.restart_space(repo_id=repo_id)
-        return f"成功重启 Space: {repo_id}"
+        message = f"成功重启 Space: {repo_id}"
+        restart_log.add_log(repo_id, True, message)
+        return message
     except Exception as e:
-        return f"重启 Space {repo_id} 失败: {e}"
+        error_message = f"重启 Space {repo_id} 失败: {e}"
+        restart_log.add_log(repo_id, False, error_message)
+        app.logger.error(error_message)
+        return error_message
     
 def rebuild_space(repo_id, token):
     try:
@@ -247,6 +292,101 @@ def space_action(action_type, repo_id):
     else:
         message = "未知操作"
     return render_template("action_result.html", message=message)
+
+@app.route("/api/space/<path:repo_id>/schedule", methods=['GET', 'POST'])
+@login_required
+def manage_space_schedule(repo_id):
+    try:
+        spaces = get_all_user_spaces()
+        space = next((s for s in spaces if s["repo_id"] == repo_id), None)
+        
+        if not space:
+            return jsonify({"error": "未找到指定的 Space"}), 404
+
+        beijing_tz = timezone(timedelta(hours=8))
+
+        if request.method == 'GET':
+            job = scheduler.get_job(f"restart_{repo_id}")
+            schedule_info = None
+            if job:
+                if job.trigger.interval.days:
+                    days = job.trigger.interval.days
+                    # 转换为北京时间显示
+                    next_run_beijing = job.next_run_time.astimezone(beijing_tz)
+                    schedule_info = {
+                        "days": days,
+                        "time": next_run_beijing.strftime("%H:%M"),
+                        "next_run": next_run_beijing.strftime("%Y-%m-%d %H:%M:%S")
+                    }
+            
+            logs = restart_log.get_logs(repo_id)
+            return jsonify({
+                "schedule": schedule_info,
+                "logs": logs
+            })
+        
+        elif request.method == 'POST':
+            data = request.json
+            days = int(data.get('days', 1))
+            time = data.get('time')  # 用户输入北京时间
+            
+            if not time:
+                return jsonify({"error": "请指定重启时间"}), 400
+
+            try:
+                hour, minute = map(int, time.split(':'))
+                if not (days > 0 and 0 <= hour < 24 and 0 <= minute < 60):
+                    raise ValueError("Invalid values")
+                
+                job_id = f"restart_{repo_id}"
+                if scheduler.get_job(job_id):
+                    scheduler.remove_job(job_id)
+
+                # 计算首次运行时间 (转换为UTC时间进行调度)
+                now = datetime.now(beijing_tz)
+                target_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                if target_time <= now:
+                    target_time += timedelta(days=1)
+                
+                # 转换为UTC时间进行调度
+                target_time_utc = target_time.astimezone(timezone.utc)
+
+                scheduler.add_job(
+                    restart_space,
+                    'interval',
+                    days=days,
+                    start_date=target_time_utc,
+                    id=job_id,
+                    args=[repo_id, space["token"]],
+                    replace_existing=True
+                )
+                
+                # 返回北京时间给用户界面
+                next_run = scheduler.get_job(job_id).next_run_time.astimezone(beijing_tz)
+                return jsonify({
+                    "message": "定时设置成功",
+                    "next_run": next_run.strftime("%Y-%m-%d %H:%M:%S")
+                })
+
+            except ValueError as e:
+                logger.error(f"无效的定时格式: {str(e)}")
+                return jsonify({"error": "无效的定时格式"}), 400
+            
+    except Exception as e:
+        logger.error(f"定时设置失败: {str(e)}")
+        return jsonify({"error": f"定时设置失败: {str(e)}"}), 500
+
+@app.route("/api/space/<path:repo_id>/schedule/cancel", methods=['POST'])
+@login_required
+def cancel_schedule(repo_id):
+    try:
+        job_id = f"restart_{repo_id}"
+        if scheduler.get_job(job_id):
+            scheduler.remove_job(job_id)
+            return jsonify({"message": "定时已取消"})
+        return jsonify({"message": "未找到定时设置"}), 404
+    except Exception as e:
+        return jsonify({"error": f"取消定时失败: {str(e)}"}), 500
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=5000)
