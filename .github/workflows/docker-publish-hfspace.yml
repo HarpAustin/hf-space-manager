@@ -2,9 +2,6 @@ name: Publish HF Space Docker Image
 
 on:
   workflow_dispatch:  # 手动触发
-  push:
-    branches:
-      - test  # Trigger on pushes to the 'test' branch
 
 permissions:
   contents: read
@@ -26,7 +23,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_PAT }}  # Use the PAT secret here
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
