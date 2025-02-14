@@ -10,8 +10,8 @@ COPY . .
 # 安装项目依赖
 RUN pip install Flask python-dotenv huggingface_hub requests gunicorn flask-socketio python-engineio python-socketio eventlet apscheduler
 
-# 开放应用程序的端口
-EXPOSE 5000
+# 开放应用程序的端口为huggingface space默认端口
+EXPOSE 7860
 
 # 设置环境变量（可选，如果需要传递 Docker 环境中的环境变量）
 # ENV USERNAME=your_username
@@ -20,4 +20,4 @@ EXPOSE 5000
 # ENV API_KEY=your_apikey
 
 # 定义启动命令
-CMD ["gunicorn", "--worker-class", "eventlet", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--worker-class", "eventlet", "--bind", "0.0.0.0:7860", "app:app"]
