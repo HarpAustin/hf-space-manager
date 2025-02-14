@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # 安装项目依赖
-RUN pip install Flask python-dotenv huggingface_hub requests gunicorn flask-socketio python-engineio python-socketio eventlet
+RUN pip install Flask python-dotenv huggingface_hub requests gunicorn flask-socketio python-engineio python-socketio eventlet apscheduler
 
 # 开放应用程序的端口
 EXPOSE 5000
