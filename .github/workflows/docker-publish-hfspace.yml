@@ -2,6 +2,9 @@ name: Publish HF Space Docker Image
 
 on:
   workflow_dispatch:  # 手动触发
+  push:
+    branches:
+      - test  # Trigger on pushes to the 'test' branch
 
 permissions:
   contents: read
