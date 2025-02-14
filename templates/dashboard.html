@@ -271,6 +271,314 @@
             .space-count {
                 margin-top: 0.5rem;
             }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+        /* 新增重启功能相关样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e5e7;
+            text-align: center;
+        }
+
+        .close {
+            position: absolute;
+            right: 1.2rem;
+            top: 1.2rem;
+            font-size: 1.5rem;
+            font-weight: normal;
+            cursor: pointer;
+            color: #86868b;
+            transition: color 0.3s ease;
+            padding: 0.3rem;
+        }
+
+        .close:hover {
+            color: #1d1d1f;
+        }
+
+        .restart-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 0 2rem 1rem;
+        }
+
+        .restart-option-btn {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .restart-option-btn.immediate {
+            background: #0071e3;
+            color: white;
+        }
+
+        .restart-option-btn.immediate:hover {
+            background: #0077ED;
+        }
+
+        .restart-option-btn.schedule {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .restart-option-btn.schedule:hover {
+            background: #e5e5e7;
+        }
+
+        .current-schedule {
+            background: #f5f5f7;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .current-schedule h6 {
+            font-size: 0.9rem;
+            color: #1d1d1f;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-schedule p {
+            font-size: 0.9rem;
+            color: #86868b;
+            margin-bottom: 0.25rem;
+        }
+
+        .timezone-note {
+            color: #86868b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0.8rem;
+            background: #f5f5f7;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0 0.5rem;
+        }
+
+        .form-group label {
+            color: #1d1d1f;
+            font-weight: 500;
+            font-size: 0.9rem;
+            flex: none;
+        }
+
+        .form-group .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .form-group input[type="number"] {
+            width: 3.5rem;
+            padding: 0.4rem;
+            border-radius: 6px;
+            border: 1px solid #e5e5e7;
+            background-color: white;
+            color: #1d1d1f;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .time-input {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .time-input label {
+            font-size: 0.85rem;
+            color: #86868b;
+            min-width: auto;
+        }
+
+        .time-input select {
+            width: 3.5rem;
+            padding: 0.4rem;
+            border-radius: 6px;
+            border: 1px solid #e5e5e7;
+            background-color: white;
+            color: #1d1d1f;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.1);
+        }
+
+        .restart-logs {
+            margin: 1.5rem 0;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            background: #f5f5f7;
+        }
+
+        .restart-logs h6 {
+            position: sticky;
+            top: 0;
+            background: #f5f5f7;
+            margin: 0;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e5e7;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .log-entry {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e5e7;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: white;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry small {
+            color: #86868b;
+            font-size: 0.8rem;
+        }
+
+        .log-entry.success {
+            color: #34c759;
+        }
+
+        .log-entry.error {
+            color: #ff3b30;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .cancel-schedule,
+        .schedule-submit {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 6rem;
+        }
+
+        .cancel-schedule {
+            background: #ff3b30;
+            color: white;
+        }
+
+        .cancel-schedule:hover {
+            background: #ff453a;
+        }
+
+        .schedule-submit {
+            background: #0071e3;
+            color: white;
+        }
+
+        .schedule-submit:hover {
+            background: #0077ED;
+        }
+
+        .schedule-submit:disabled {
+            background: #e5e5e7;
+            color: #86868b;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+                padding: 1.2rem;
+            }
+
+            .restart-options {
+                margin: 0 1rem 1rem;
+            }
+
+            .form-group {
+                padding: 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .cancel-schedule,
+            .schedule-submit {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -347,6 +655,75 @@
         <a href="https://opensource.org/license/mit">MIT 协议</a>
     </footer>
 
+    <!-- 新增重启功能组件 -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>选择重启方式</h2>
+            <div class="restart-options">
+                <button class="restart-option-btn immediate">立即重启</button>
+                <button class="restart-option-btn schedule">定时重启</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scheduleSettingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>定时重启设置</h2>
+            
+            <div id="currentSchedule" class="current-schedule" style="display: none;">
+                <h6>当前设置</h6>
+                <p>每 <span id="currentDays"></span> 天在 <span id="currentTime"></span> 重启</p>
+                <p>下次重启时间: <span id="nextRun"></span></p>
+            </div>
+
+            <div class="timezone-note">
+                所有时间均为北京时间 (UTC+8)
+            </div>
+
+            <div class="form-group">
+                <label>重启间隔</label>
+                <div class="input-group">
+                    <input type="number" id="days" min="1" value="1">
+                    <span style="color: #86868b; font-size: 0.9rem;">天</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>重启时间</label>
+                <div class="time-inputs">
+                    <div class="time-input">
+                        <select id="hour">
+                            {% for i in range(24) %}
+                            <option value="{{ '%02d' % i }}">{{ '%02d' % i }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>时</label>
+                    </div>
+                    <div class="time-input">
+                        <select id="minute">
+                            {% for i in range(0, 60, 5) %}
+                            <option value="{{ '%02d' % i }}">{{ '%02d' % i }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>分</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="restart-logs">
+                <h6>重启日志</h6>
+                <div id="restartLogs"></div>
+            </div>
+
+            <div class="button-group">
+                <button id="cancelSchedule" class="cancel-schedule" style="display: none;">取消定时</button>
+                <button id="saveSchedule" class="schedule-submit">保存设置</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
         // 连接 WebSocket
@@ -396,13 +773,169 @@
             });
         }
 
-        // 在进行操作时显示加载动画
+        // 新增重启功能变量
+        let currentSpaceId = null;
+
+        // 增强操作确认 - 修改原始
         function confirmAction(action, spaceId) {
-            var actionText = action === 'restart' ? '重启' : '重建';
-            if (confirm(`确定要${actionText} "${spaceId}" 吗？`)) {document.getElementById('loading').style.display = 'flex';
-                window.location.href = `/action/${action}/${spaceId}`;
+            if (action === 'rebuild') {
+                if (confirm(`确定要重建 "${spaceId}" 吗？`)) {
+                    document.getElementById('loading').style.display = 'flex';
+                    window.location.href = `/action/rebuild/${spaceId}`;
+                }
+            } else if (action === 'restart') {
+                currentSpaceId = spaceId;
+                showRestartModal();
             }
         }
+
+        // 新增重启功能函数
+        function showRestartModal() {
+            const modal = document.getElementById('scheduleModal');
+            modal.classList.add('show');
+
+            const immediateBtn = modal.querySelector('.immediate');
+            const scheduleBtn = modal.querySelector('.schedule');
+
+            immediateBtn.onclick = () => handleImmediateRestart();
+            scheduleBtn.onclick = () => handleScheduledRestart();
+        }
+
+        function handleImmediateRestart() {
+            if (confirm(`确定要立即重启 "${currentSpaceId}" 吗？`)) {
+                document.getElementById('loading').style.display = 'flex';
+                window.location.href = `/action/restart/${currentSpaceId}`;
+            }
+        }
+
+        function handleScheduledRestart() {
+            document.getElementById('scheduleModal').classList.remove('show');
+            showScheduleSettingModal();
+        }
+
+        function showScheduleSettingModal() {
+            const modal = document.getElementById('scheduleSettingModal');
+            const currentSchedule = document.getElementById('currentSchedule');
+            const cancelBtn = document.getElementById('cancelSchedule');
+            const restartLogs = document.getElementById('restartLogs');
+            
+            // 重置表单
+            document.getElementById('days').value = '1';
+            document.getElementById('hour').value = '00';
+            document.getElementById('minute').value = '00';
+            
+            modal.classList.add('show');
+            
+            // 获取当前重启设置和日志
+            fetch(`/api/space/${currentSpaceId}/schedule`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.schedule) {
+                        currentSchedule.style.display = 'block';
+                        cancelBtn.style.display = 'inline-block';
+                        document.getElementById('currentDays').textContent = data.schedule.days;
+                        document.getElementById('currentTime').textContent = data.schedule.time;
+                        document.getElementById('nextRun').textContent = data.schedule.next_run;
+                        
+                        // 预填充表单当前值
+                        document.getElementById('days').value = data.schedule.days;
+                        if (data.schedule.time) {
+                            const [hours, minutes] = data.schedule.time.split(':');
+                            document.getElementById('hour').value = hours;
+                            document.getElementById('minute').value = minutes;
+                        }
+                    } else {
+                        currentSchedule.style.display = 'none';
+                        cancelBtn.style.display = 'none';
+                    }
+
+                    // 显示日志
+                    restartLogs.innerHTML = data.logs.map(log => `
+                        <div class="log-entry ${log.success ? 'success' : 'error'}">
+                            <small>${log.timestamp}</small>
+                            <div>${log.message}</div>
+                        </div>
+                    `).join('') || '<div style="text-align: center; color: #86868b; padding: 1rem;">暂无日志</div>';
+                });
+        }
+
+        // 新增重启功能事件处理
+        document.addEventListener('DOMContentLoaded', function() {
+            // 模态框关闭处理
+            document.querySelectorAll('.modal .close').forEach(closeBtn => {
+                closeBtn.onclick = function() {
+                    this.closest('.modal').classList.remove('show');
+                };
+            });
+
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.classList.remove('show');
+                }
+            };
+
+            // 定时重启表单处理
+            document.getElementById('saveSchedule').onclick = function() {
+                const days = document.getElementById('days').value;
+                const hour = document.getElementById('hour').value;
+                const minute = document.getElementById('minute').value;
+                const time = `${hour}:${minute}`;
+                
+                if (!days || days < 1) {
+                    alert('请填写重启间隔天数');
+                    return;
+                }
+
+                // 显示保存中的状态
+                const saveButton = this;
+                const originalText = saveButton.textContent;
+                saveButton.textContent = '保存中...';
+                saveButton.disabled = true;
+
+                fetch(`/api/space/${currentSpaceId}/schedule`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ days, time })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        saveButton.textContent = originalText;
+                        saveButton.disabled = false;
+                    } else {
+                        // 显示成功消息
+                        saveButton.textContent = '✓ 已保存';
+                        saveButton.style.backgroundColor = '#34c759';
+                        setTimeout(() => {
+                            document.getElementById('scheduleSettingModal').classList.remove('show');
+                            location.reload();
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    alert('保存失败，请重试');
+                    saveButton.textContent = originalText;
+                    saveButton.disabled = false;
+                });
+            };
+            
+            // 取消按钮处理程序
+            document.getElementById('cancelSchedule').onclick = function() {
+                if (confirm('确定要取消定时重启吗？')) {
+                    fetch(`/api/space/${currentSpaceId}/schedule/cancel`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('scheduleSettingModal').classList.remove('show');
+                        location.reload();
+                    });
+                }
+            };
+        });
 
         // 每30秒更新一次状态
         setInterval(updateSpaceStatuses, 30000);
